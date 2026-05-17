@@ -1,0 +1,35 @@
+[project]
+name = "pilula-laranja-automacao"
+version = "0.1.0"
+description = "Automação Python para coleta, filtragem, reescrita e publicação de rascunhos de notícias para o meu projeto 'Pílula Laranja', feito no WordPress."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+pilula = "pilula_laranja.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pilula_laranja"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+]
