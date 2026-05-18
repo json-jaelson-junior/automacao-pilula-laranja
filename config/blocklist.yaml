@@ -1,0 +1,23 @@
+# config/blocklist.yaml
+blocklist:
+  terms:
+    - "memecoin"
+    - "shitcoin"
+    - "dogecoin"
+    - "doge"
+    - "shib"
+    - "pepe"
+    - "bonk"
+    - "airdrop farming"
+    - "price prediction"
+    - "pump and dump"
+    - "moonshot"
+    - "100x"
+    - "get rich"
+    - "guaranteed returns"
+    - "casino"
+    - "gambling"
+    - "bc.game"
+    - "roobet"
+    - "press release"
+    - "sponsored"

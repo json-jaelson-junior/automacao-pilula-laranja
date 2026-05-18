@@ -1,0 +1,20 @@
+sources:
+  - name: "Bitcoin Magazine"
+    feed_url: "https://bitcoinmagazine.com/feed"
+    active: true
+
+  - name: "The Block"
+    feed_url: "https://theblock.co/rss.xml"
+    active: true
+
+  - name: "Decrypt"
+    feed_url: "https://decrypt.co/feed"
+    active: true
+
+  - name: "CoinDesk"
+    feed_url: "https://coindesk.com/arc/outboundfeeds/rss/"
+    active: true
+
+  - name: "Bitcoin News"
+    feed_url: "https://news.bitcoin.com/feed"
+    active: true
