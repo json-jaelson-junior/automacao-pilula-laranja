@@ -5,7 +5,10 @@ description = "Automação Python para coleta, filtragem, reescrita e publicaç�
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pydantic>=2.13.4",
+    "pyyaml>=6.0.3",
+]
 
 [project.scripts]
 pilula = "pilula_laranja.cli:app"
@@ -32,5 +35,7 @@ pythonpath = ["src"]
 [dependency-groups]
 dev = [
     "pre-commit>=4.6.0",
+    "pytest>=9.0.3",
+    "pytest-mock>=3.15.1",
     "ruff>=0.15.13",
 ]
