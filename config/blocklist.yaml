@@ -1,4 +1,3 @@
-# config/blocklist.yaml
 blocklist:
   terms:
     - "memecoin"
