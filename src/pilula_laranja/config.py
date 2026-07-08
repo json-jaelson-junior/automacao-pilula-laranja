@@ -34,21 +34,21 @@ CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
 
 
 def _load_yaml(filename: str) -> dict:
-    """Lê um arquivo YAML do diretório config/ e retorna um dicionário."""
+    """Lê um arquivo YAML do diretório config/ e retorna um dicionário"""
     path = CONFIG_DIR / filename
     with path.open(encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
 def load_config() -> AppConfig:
-    """Carrega e valida todas as configurações do projeto.
+    """Carrega e valida todas as configurações do projeto
 
     Return:
-        AppConfig: objeto validade com sources, keywords e blocklist.
+        AppConfig: objeto validade com sources, keywords e blocklist
 
     Raises:
-    ValidationError: se algum YAML estiver mal formado ou com campos faltando.
-    FileNotFoundError: se algum arquivo de config não existir.
+    ValidationError: se algum YAML estiver mal formado ou com campos faltando
+    FileNotFoundError: se algum arquivo de config não existir
     """
     sources_data = _load_yaml("sources.yaml")
     keywords_data = _load_yaml("keywords.yaml")
