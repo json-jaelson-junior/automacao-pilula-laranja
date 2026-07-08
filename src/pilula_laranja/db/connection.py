@@ -13,14 +13,14 @@ class TursoError(Exception):
 
 
 class TursoClient:
-    """Cliente HTTP para a API do Turso (libSQL over HTTP)."""
+    """Cliente HTTP para a API do Turso (libSQL over HTTP)"""
 
     def __init__(self) -> None:
         url = os.environ.get("TURSO_DATABASE_URL", "")
         token = os.environ.get("TURSO_AUTH_TOKEN", "")
 
         if not url or not token:
-            raise TursoError("TURSO_DATABASE_URL e TURSO_AUTH_TOKEN são obrigatórios.")
+            raise TursoError("TURSO_DATABASE_URL e TURSO_AUTH_TOKEN são obrigatórios")
 
         # Normaliza o schema: libsql:// para https://
         self._base_url = url.replace("libsql://", "https://") + "/v2/pipeline"
