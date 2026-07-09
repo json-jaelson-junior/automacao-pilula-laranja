@@ -1,5 +1,4 @@
 # Importações
-
 from pilula_laranja.db.connection import TursoClient, TursoError
 
 # SQL de criação das tabelas
@@ -35,6 +34,7 @@ def run_migrations(client: TursoClient) -> None:
     Raises:
         TursoError: Se alguma migration falhar
     """
+
     migrations = [
         ("processed_items", CREATE_PROCESSED_ITEMS),
         ("api_usage", CREATE_API_USAGE),

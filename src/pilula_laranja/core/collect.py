@@ -37,7 +37,6 @@ def _parse_date(entry: feedparser.FeedParserDict) -> datetime | None:
 def _parse_entry(entry: feedparser.FeedParserDict, source_name: str) -> RawItem | None:
     title = entry.get("title", "").strip()
     url = entry.get("link", "").strip()
-
     if not title or not url:
         logging.warning(
             "Entrada ignorada: título ou URL ausente | source=%s", source_name
@@ -66,9 +65,10 @@ def fetch_feed(source_name: str, feed_url: str) -> list[RawItem]:
     Returns:
         Lista de RawItem extraídos do feed
     """
-    logger.info("Buscando feed | source=%s url=%s", source_name, feed_url)
-    parsed = feedparser.parse(feed_url)
 
+    logger.info("Buscando feed | source=%s url=%s", source_name, feed_url)
+
+    parsed = feedparser.parse(feed_url)
     if parsed.bozo:
         logger.warning(
             "Feed com XML mal formad | source=%s erro=%s",
@@ -95,6 +95,7 @@ def collect_all(config: AppConfig) -> list[RawItem]:
     Returns:
         Lista de RawItem de todas as fontes ativas
     """
+
     all_items: list[RawItem] = []
 
     for source in config.sources:
