@@ -4,9 +4,8 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, HttpUrl
 
+
 # Modelos
-
-
 class Source(BaseModel):
     name: str
     feed_url: HttpUrl
@@ -29,12 +28,12 @@ class AppConfig(BaseModel):
 
 
 # Loader
-
 CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
 
 
 def _load_yaml(filename: str) -> dict:
     """Lê um arquivo YAML do diretório config/ e retorna um dicionário"""
+
     path = CONFIG_DIR / filename
     with path.open(encoding="utf-8") as f:
         return yaml.safe_load(f)
@@ -50,6 +49,7 @@ def load_config() -> AppConfig:
     ValidationError: se algum YAML estiver mal formado ou com campos faltando
     FileNotFoundError: se algum arquivo de config não existir
     """
+
     sources_data = _load_yaml("sources.yaml")
     keywords_data = _load_yaml("keywords.yaml")
     blocklist_data = _load_yaml("blocklist.yaml")

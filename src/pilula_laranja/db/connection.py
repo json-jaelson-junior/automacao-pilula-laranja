@@ -57,7 +57,7 @@ class TursoClient:
         if isinstance(value, bool):
             return {"type": "integer", "value": str(int(value))}
         if isinstance(value, int):
-            return {"type": "integer", "value": str(str(value))}
+            return {"type": "integer", "value": str(value)}
         if isinstance(value, float):
             return {"type": "float", "value": str(value)}
         return {"type": "text", "value": str(value)}

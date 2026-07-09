@@ -1,5 +1,4 @@
 # Importações
-
 from dotenv import load_dotenv
 
 from pilula_laranja.db.connection import TursoClient
