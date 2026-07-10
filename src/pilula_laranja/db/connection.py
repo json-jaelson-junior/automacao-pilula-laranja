@@ -1,5 +1,4 @@
 # Importações
-
 import os
 from typing import Any
 
@@ -32,11 +31,13 @@ class TursoClient:
 
     def execute(self, sql: str, params: list[Any] | None = None) -> list[dict]:
         """Executa uma query SQL e retorna as linhas como lista de dicts"""
+
         stmt = self._build_stmt(sql, params)
         return self._send([{"type": "execute", "stmt": stmt}])
 
     def executemany(self, sql: str, list_of_params: list[list[Any]]) -> None:
         """Executa a mesma query SQL para múltiplos conjuntos de parâmetros"""
+
         requests_payload = [
             {"type": "execute", "stmt": self._build_stmt(sql, params)}
             for params in list_of_params
@@ -45,6 +46,7 @@ class TursoClient:
 
     def _build_stmt(self, sql: str, params: list[Any] | None) -> dict:
         """Monta o objeto stmt esperado pela API do Turso"""
+
         stmt: dict[str, Any] = {"sql": sql, "args": []}
         if params:
             stmt["args"] = [self._encode_value(p) for p in params]
@@ -52,6 +54,7 @@ class TursoClient:
 
     def _encode_value(self, value: Any) -> dict:
         """Converte valor Python para o formato tipado da API do Turso"""
+
         if value is None:
             return {"type": "null", "value": None}
         if isinstance(value, bool):
@@ -64,6 +67,7 @@ class TursoClient:
 
     def _send(self, requests_payload: list[dict]) -> list[dict]:
         """Envia o payload para a API e retorna as linhas da última query"""
+
         try:
             response = self._session.post(
                 self._base_url,
