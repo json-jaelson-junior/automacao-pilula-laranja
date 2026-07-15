@@ -77,6 +77,18 @@ def collect(
     )
 
 
+@app.command(name="filter")
+def filter_items(
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Executa o pipeline de filtragem sem gravar no banco",
+    ),
+) -> None:
+    """Filtra e classifica semanticamente as notícias coletadas"""
+    logger.info("filter_nao_implementado", aviso="comando ainda não implementado")
+
+
 def main() -> None:
     """Entry point registrado no pyproject.toml"""
     app()
