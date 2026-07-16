@@ -1,0 +1,4 @@
+gemini:
+  daily_token_limit: 1000000
+  max_retries: 3
+  timeout_seconds: 30

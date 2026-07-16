@@ -39,6 +39,7 @@ def check_blocklist(text: str, terms: list[str]) -> str | None:
     Returns:
         Primeiro termo encontrado ou None
     """
+
     normalized = _normalize(text)
     for term in terms:
         if _normalize(term) in normalized:
@@ -56,6 +57,7 @@ def check_required_keywords(text: str, keywords: list[str]) -> bool:
     Returns:
         True se ao menos uma keyword estiver presente
     """
+
     normalized = _normalize(text)
     return any(_normalize(kw) in normalized for kw in keywords)
 
@@ -70,6 +72,7 @@ def apply_filters(item: ExtractedItem, config: AppConfig) -> FilterResult:
     Returns:
         FilterResult com decisão e motivo
     """
+
     full_text = f"{item.title} {item.content}"
 
     matched_term = check_blocklist(full_text, config.blocklist.terms)
@@ -97,6 +100,7 @@ def filter_all(
     Returns:
         Lista de itens que passaram em todos os filtros
     """
+
     passed = []
     rejected = 0
 

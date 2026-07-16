@@ -21,10 +21,19 @@ class Blocklist(BaseModel):
     terms: list[str]
 
 
+class GeminiConfig(BaseModel):
+    """Configurações operacionais do cliente Gemini"""
+
+    daily_token_limit: int = 1_000_000  # Free tier Flash: 1M tokens/dia
+    max_retries: int = 3
+    timeout_seconds: int = 30
+
+
 class AppConfig(BaseModel):
     sources: list[Source]
     keywords: Keywords
     blocklist: Blocklist
+    gemini: GeminiConfig = GeminiConfig()
 
 
 # Loader
@@ -53,9 +62,11 @@ def load_config() -> AppConfig:
     sources_data = _load_yaml("sources.yaml")
     keywords_data = _load_yaml("keywords.yaml")
     blocklist_data = _load_yaml("blocklist.yaml")
+    gemini_data = _load_yaml("gemini.yaml")
 
     return AppConfig(
         sources=sources_data["sources"],
         keywords=keywords_data["keywords"],
         blocklist=blocklist_data["blocklist"],
+        gemini=gemini_data["gemini"],
     )
