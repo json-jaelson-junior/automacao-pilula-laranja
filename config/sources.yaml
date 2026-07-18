@@ -3,10 +3,6 @@ sources:
     feed_url: "https://bitcoinmagazine.com/feed"
     active: true
 
-  - name: "The Block"
-    feed_url: "https://theblock.co/rss.xml"
-    active: true
-
   - name: "Decrypt"
     feed_url: "https://decrypt.co/feed"
     active: true
