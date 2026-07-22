@@ -23,8 +23,8 @@ Revisão humana obrigatória antes de qualquer publicação.
 ## Roadmap
 
 - [x] Fase 0 — Setup
-- [ ] Fase 1 — Coleta & Persistência
-- [ ] Fase 2 — Filtragem Inteligente
+- [x] Fase 1 — Coleta & Persistência
+- [x] Fase 2 — Filtragem Inteligente
 - [ ] Fase 3 — Reescrita, Sanitização & Publicação ← Marco MVP
 - [ ] Fase 4 — CI/CD & Deploy
 - [ ] Fase 5 — Observabilidade
