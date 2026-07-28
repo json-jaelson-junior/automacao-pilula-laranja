@@ -5,17 +5,21 @@ import structlog
 logger = structlog.get_logger()
 
 _AUDIT_COMMENT_TEMPLATE = (
-    "\n<!-- PILULA_LARANJA: gerado_em={gerado_em} fonte_nome={fonte_nome} -->"
+    "\n<!-- PILULA_LARANJA:"
+    " published_at={published_at}"
+    " source_name={source_name}"
+    " url={url}"
+    " -->"
 )
 
 _DISCLAIMER_TEMPLATE = (
     "\n<p><em>Este artigo é uma adaptação editorial de"
-    ' <a href="{fonte_url}" rel="noopener noreferrer">{fonte_nome}</a>.'
+    ' <a href="{url}" rel="noopener noreferrer">{source_name}</a>.'
     " Conteúdo revisado manualmente antes da publicação.</em></p>"
 )
 
 
-def inject_metadata(html: str, fonte_url: str, fonte_nome: str) -> str:
+def inject_metadata(html: str, url: str, source_name: str) -> str:
     """Injeta comentário de auditoria e disclaimer de fonte no HTML sanitizado
 
     Deve ser chamado APÓS sanitize_html() - bleach removeria os comentários
@@ -23,28 +27,30 @@ def inject_metadata(html: str, fonte_url: str, fonte_nome: str) -> str:
 
     Args:
         html: HTML já sanitizado pelo sanitize_html()
-        fonte_url: URL canônica do artigo original
-        fonte_nome: nome legível da fonte (ex: "Bitcoin Magazine")
+        url: URL canônica do artigo original
+        source_name: nome legível da fonte (ex: "Bitcoin Magazine")
 
     Returns:
         HTML com disclaimer visível e comentário de auditoria ao final
     """
 
-    gerado_em = datetime.now(UTC).isoformat()
+    published_at = datetime.now(UTC).isoformat()
 
     audit_comment = _AUDIT_COMMENT_TEMPLATE.format(
-        gerado_em=gerado_em,
-        fonte_nome=fonte_nome,
-        fonte_url=fonte_url,
+        published_at=published_at,
+        source_name=source_name,
+        url=url,
     )
 
     disclaimer = _DISCLAIMER_TEMPLATE.format(
-        fonte_url=fonte_url,
-        fonte_nome=fonte_nome,
+        url=url,
+        source_name=source_name,
     )
 
     result = html + disclaimer + audit_comment
 
-    logger.debug("metadata_injetado", fonte_nome=fonte_nome, gerado_em=gerado_em)
+    logger.debug(
+        "metadata_injetado", source_name=source_name, published_at=published_at
+    )
 
     return result
