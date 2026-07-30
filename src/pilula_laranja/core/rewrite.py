@@ -61,7 +61,7 @@ def _build_prompt(template: str, item: ExtractedItem) -> str:
 
     return template.format(
         title=item.title,
-        content=item.content[:3000],
+        content=item.content[:4000],
         url=item.url,
         source_name=item.source_name,
     )
