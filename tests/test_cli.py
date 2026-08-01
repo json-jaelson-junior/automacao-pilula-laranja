@@ -107,3 +107,74 @@ def test_collect_sem_itens_extraidos(mock_config, mock_raw_items):
 
     assert result.exit_code == 0
     mock_dedup.assert_not_called()
+
+
+def test_publish_dry_run_sem_wp():
+    mock_item = MagicMock()
+    mock_result = MagicMock()
+    mock_result.success = True
+
+    with (
+        patch("pilula_laranja.cli.load_config"),
+        patch("pilula_laranja.cli.collect_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.extract_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_new_items", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.GeminiClient"),
+        patch("pilula_laranja.cli.classify_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.rewrite_all", return_value=[mock_result]),
+        patch("pilula_laranja.cli.WordPressClient") as mock_wp,
+    ):
+        result = runner.invoke(app, ["publish", "--dry-run"])
+
+    assert result.exit_code == 0
+    mock_wp.assert_not_called()
+
+
+def test_publish_chama_wp_sem_dry_run():
+    mock_item = MagicMock()
+    mock_rewrite = MagicMock()
+    mock_rewrite.success = True
+    mock_publish = MagicMock()
+    mock_publish.success = True
+
+    with (
+        patch("pilula_laranja.cli.load_config"),
+        patch("pilula_laranja.cli.TursoClient"),
+        patch("pilula_laranja.cli.collect_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.extract_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_new_items", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.GeminiClient"),
+        patch("pilula_laranja.cli.classify_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.rewrite_all", return_value=[mock_rewrite]),
+        patch("pilula_laranja.cli.WordPressClient"),
+        patch(
+            "pilula_laranja.cli.publish_all", return_value=[mock_publish]
+        ) as mock_pub,
+    ):
+        result = runner.invoke(app, ["publish"])
+
+    assert result.exit_code == 0
+    mock_pub.assert_called_once()
+
+
+def test_publish_quota_error_reescrita():
+    from pilula_laranja.clients.gemini import GeminiQuotaError
+
+    mock_item = MagicMock()
+
+    with (
+        patch("pilula_laranja.cli.load_config"),
+        patch("pilula_laranja.cli.TursoClient"),
+        patch("pilula_laranja.cli.collect_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.extract_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_new_items", return_value=[mock_item]),
+        patch("pilula_laranja.cli.filter_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.GeminiClient"),
+        patch("pilula_laranja.cli.classify_all", return_value=[mock_item]),
+        patch("pilula_laranja.cli.rewrite_all", side_effect=GeminiQuotaError("quota")),
+    ):
+        result = runner.invoke(app, ["publish"])
+
+    assert result.exit_code == 1
