@@ -1,6 +1,7 @@
 # Importações
 import structlog
 import typer
+from dotenv import load_dotenv
 from pydantic import ValidationError
 
 from pilula_laranja.clients.gemini import GeminiClient, GeminiQuotaError
@@ -231,7 +232,7 @@ def publish(
         raise typer.Exit(code=0)
 
     try:
-        rewrite_results = rewrite_all(classified_items, gemini)
+        rewrite_results = rewrite_all(classified_items, gemini, config)
     except GeminiQuotaError as exc:
         logger.error("gemini_quota_esgotada_reescrita", erro=str(exc))
         raise typer.Exit(code=1) from None
@@ -256,7 +257,7 @@ def publish(
 
     publish_results = publish_all(rewrite_results, wp_client)
 
-    sucessos = sum(1 for pr in publish_results if pr.sucess)
+    sucessos = sum(1 for pr in publish_results if pr.success)
 
     logger.info(
         "pipeline_concluido",
@@ -274,6 +275,7 @@ def publish(
 
 def main() -> None:
     """Entry point registrado no pyproject.toml"""
+    load_dotenv()
     app()
 
 
