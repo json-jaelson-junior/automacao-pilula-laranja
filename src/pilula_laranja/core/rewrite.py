@@ -1,11 +1,13 @@
 # Importações
 import os
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
 import structlog
 
 from pilula_laranja.clients.gemini import GeminiClient, GeminiQuotaError
+from pilula_laranja.config import AppConfig
 from pilula_laranja.core.extract import ExtractedItem
 
 logger = structlog.get_logger()
@@ -26,7 +28,7 @@ class RewriteResult:
     item: ExtractedItem
     excerpt: str
     body: str
-    success: str
+    success: bool
     reason: str
 
 
@@ -160,6 +162,7 @@ def rewrite_item(
 def rewrite_all(
     items: list[ExtractedItem],
     client: GeminiClient,
+    config: AppConfig,
 ) -> list[RewriteResult]:
     """Reescreve uma lista de itens, retornando apenas os bem-sucedidos
 
@@ -171,13 +174,17 @@ def rewrite_all(
         Lista de RewriteResult com success=True
     """
 
-    model = os.environ.get("GEMINI_REWRITER_MODEL", "gemini-2.5-flash")
+    model = os.environ.get("GEMINI_REWRITER_MODEL", "gemini-3.5-flash")
     prompt_template = _load_prompt_template()
+    sleep_seconds = 60 / config.gemini.rewrite_rpm
+    max_items = config.gemini.rewrite_rpd // 5
+
+    items_to_process = items[:max_items]
 
     succeeded = []
     failed = 0
 
-    for item in items:
+    for item in items_to_process:
         result = rewrite_item(item, client, prompt_template, model)
 
         if result.success:
@@ -190,6 +197,8 @@ def rewrite_all(
                 source=item.source_name,
                 reason=result.reason,
             )
+
+        time.sleep(sleep_seconds)
 
     logger.info(
         "reescrita_concluida",

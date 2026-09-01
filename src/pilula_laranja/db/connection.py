@@ -93,6 +93,6 @@ class TursoClient:
         rows_data = last["response"]["result"]
         cols = [c["name"] for c in rows_data["cols"]]
         return [
-            dict(zip(cols, [v["value"] for v in row], strict=False))
+            dict(zip(cols, [v.get("value") for v in row], strict=False))
             for row in rows_data["rows"]
         ]

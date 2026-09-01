@@ -1,5 +1,6 @@
 # Importações
 import os
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -124,11 +125,15 @@ def classify_all(
 
     model = os.environ.get("GEMINI_CLASSIFIER_MODEL", "gemini-2.5-flash")
     prompt_template = _load_prompt_template()
+    sleep_seconds = 60 / config.gemini.classify_rpm
+    max_items = config.gemini.classify_rpd // 5
+
+    items_to_process = items[:max_items]
 
     passed = []
     rejected = 0
 
-    for item in items:
+    for item in items_to_process:
         result = classify_item(item, client, prompt_template, model)
 
         if result.passed:
@@ -146,6 +151,8 @@ def classify_all(
                 source=item.source_name,
                 reason=result.reason,
             )
+
+        time.sleep(sleep_seconds)
 
     logger.info(
         "classificacao_concluida",
