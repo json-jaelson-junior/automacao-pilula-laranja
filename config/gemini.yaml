@@ -2,3 +2,7 @@ gemini:
   daily_token_limit: 1000000
   max_retries: 3
   timeout_seconds: 30
+  classify_rpm: 15
+  classify_rpd: 500
+  rewrite_rpm: 5
+  rewrite_rpd: 20
