@@ -24,6 +24,18 @@ Formato de saída — siga rigorosamente:
 <p>Fonte original: <a href="{url}">{source_name}</a>. Este conteúdo é uma adaptação
 jornalística em português e não representa tradução oficial da publicação original.</p>
 
+Antes do HTML, escreva um resumo SEO em texto puro (máximo 250 caracteres)
+descrevendo o assunto da notícia. Separe o resumo do HTML com ---SEO--- em uma
+linha própria.
+
+Exemplo de saída:
+Bitcoin atinge novo recorde após adoção institucional crescente nos EUA.
+---SEO---
+<h2>Título em PT-BR</h2>
+<p>Corpo do artigo...</p>
+<p>Fonte: <a href="{url}"><em>{title}</em></a></p>
+<p><strong>DYOR.</strong></p>
+
 ---
 Título: {title}
 
