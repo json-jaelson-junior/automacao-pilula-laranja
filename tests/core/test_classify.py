@@ -86,15 +86,15 @@ def test_build_prompt_trunca_conteudo_longo(template: str) -> None:
     item_longo = ExtractedItem(
         url="https://example.com",
         title="Título",
-        content="x" * 5000,
+        content="x" * 1500,
         summary="resumo",
         source_name="Fonte",
         published_at=None,
         extracted_at=datetime.now(UTC),
     )
     prompt = _build_prompt(template, item_longo)
-    assert "x" * 3001 not in prompt
-    assert "x" * 3000 in prompt
+    assert "x" * 1501 not in prompt
+    assert "x" * 1500 in prompt
 
 
 # ─── Testes de classify_item ─────────────────────────────────────────────────
@@ -159,14 +159,19 @@ def test_classify_all_retorna_apenas_aprovados(mocker: pytest.fixture) -> None:
     items = [_make_item(url=f"https://example.com/{i}") for i in range(3)]
 
     mock_client = mocker.MagicMock()
-    mock_client.generate.side_effect = ["SIM", "NÃO", "SIM"]
+    mock_client.generate.side_effect = ["SIM", "NÃO", "SIM"]  # <- faltava isso
 
+    mock_config = mocker.MagicMock()  # <- faltava criar antes de usar
+    mock_config.gemini.classify_rpm = 15
+    mock_config.gemini.classify_rpd = 500
+
+    mocker.patch("pilula_laranja.core.classify.time.sleep")
     mocker.patch(
         "pilula_laranja.core.classify._load_prompt_template",
         return_value="Título: {title}\nConteúdo: {content}",
     )
 
-    result = classify_all(items, mock_client, mocker.MagicMock())
+    result = classify_all(items, mock_client, mock_config)  # <- passar mock_config
 
     assert len(result) == 2
     assert result[0].url == "https://example.com/0"

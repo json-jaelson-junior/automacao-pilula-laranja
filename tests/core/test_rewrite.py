@@ -19,7 +19,6 @@ def sample_item() -> ExtractedItem:
         url="https://example.com/article",
         source_name="CoinDesk",
         published_at="2025-01-01T00:00:00+00:00",
-        content_hash="abc123",
         summary="Summary here",
         extracted_at="2025-01-01T00:00:00+00:00",
     )
@@ -88,7 +87,6 @@ def test_rewrite_all_retorna_apenas_sucessos(mock_client):
         url="https://example.com/ok",
         source_name="CoinDesk",
         published_at="2025-01-01T00:00:00+00:00",
-        content_hash="hash1",
         summary="Summary ok",
         extracted_at="2025-01-01T00:00:00+00:00",
     )
@@ -98,7 +96,6 @@ def test_rewrite_all_retorna_apenas_sucessos(mock_client):
         url="https://example.com/fail",
         source_name="Decrypt",
         published_at="2025-01-01T00:00:00+00:00",
-        content_hash="hash2",
         summary="Summary fail",
         extracted_at="2025-01-01T00:00:00+00:00",
     )
@@ -106,10 +103,14 @@ def test_rewrite_all_retorna_apenas_sucessos(mock_client):
         "Excerpt ok\n---SEO---\n<h2>Título</h2><p>Corpo</p>",
         "Resposta sem separador",
     ]
+    mock_config = MagicMock()
+    mock_config.gemini.rewrite_rpm = 5
+    mock_config.gemini.rewrite_rpd = 20
+
     with patch(
         "pilula_laranja.core.rewrite._load_prompt_template",
         return_value="{title}{content}{url}{source_name}",
     ):
-        results = rewrite_all([item_ok, item_fail], mock_client)
+        results = rewrite_all([item_ok, item_fail], mock_client, mock_config)
     assert len(results) == 1
     assert results[0].item.url == "https://example.com/ok"

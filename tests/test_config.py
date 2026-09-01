@@ -24,6 +24,17 @@ def test_load_config_returns_app_config(tmp_path, monkeypatch):
 
     (tmp_path / "blocklist.yaml").write_text("blocklist:\n  terms:\n    - memecoin\n")
 
+    (tmp_path / "gemini.yaml").write_text(
+        "gemini:\n"
+        "  daily_token_limit: 1000000\n"
+        "  max_retries: 3\n"
+        "  timeout_seconds: 30\n"
+        "  classify_rpm: 15\n"
+        "  classify_rpd: 500\n"
+        "  rewrite_rpm: 5\n"
+        "  rewrite_rpd: 20\n"
+    )
+
     config = load_config()
 
     assert isinstance(config, AppConfig)
@@ -50,6 +61,17 @@ def test_load_config_invalid_url_raises(tmp_path, monkeypatch):
     )
 
     (tmp_path / "blocklist.yaml").write_text("blocklist:\n  terms: []\n")
+
+    (tmp_path / "gemini.yaml").write_text(
+        "gemini:\n"
+        "  daily_token_limit: 1000000\n"
+        "  max_retries: 3\n"
+        "  timeout_seconds: 30\n"
+        "  classify_rpm: 15\n"
+        "  classify_rpd: 500\n"
+        "  rewrite_rpm: 5\n"
+        "  rewrite_rpd: 20\n"
+    )
 
     with pytest.raises(ValidationError):
         load_config()
