@@ -1,0 +1,22 @@
+name: Validate Sources
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"  # Segunda-feira, 09:00 UTC = 06:00 BRT (UTC-3)
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
+
+      - name: Instalar dependências
+        run: uv sync --locked
+
+      - name: Rodar validação de fontes
+        run: uv run python scripts/validate_sources.py
