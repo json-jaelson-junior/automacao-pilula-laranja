@@ -107,7 +107,7 @@ def filter_items(
     if not dry_run:
         try:
             client = TursoClient()
-        except TursoClient as exc:
+        except TursoError as exc:
             logger.error("turso_indisponivel", erro=str(exc))
             raise typer.Exit(code=1) from None
 
