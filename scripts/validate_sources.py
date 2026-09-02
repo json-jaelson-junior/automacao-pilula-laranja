@@ -4,7 +4,7 @@ import sys
 import feedparser
 import requests
 
-from pilula_laranja.config import AppConfig
+from pilula_laranja.config import load_config
 
 
 def validate_source(name: str, feed_url: str, timeout: int = 10) -> tuple[bool, str]:
@@ -38,7 +38,7 @@ def validate_source(name: str, feed_url: str, timeout: int = 10) -> tuple[bool, 
     return True, f"{name}: OK ({len(feed.entries)} entries)"
 
 
-def validate_all(config: AppConfig) -> bool:
+def validate_all(config: load_config) -> bool:
     """Valida todas as fontes ativas do config e imprime o relatório
 
     Args:
@@ -47,7 +47,7 @@ def validate_all(config: AppConfig) -> bool:
     Returns:
         True se todas as fontes passaram, False se qualquer uma falhou
     """
-    active_sources = [s for s in config.sources if s.enabled]
+    active_sources = [s for s in config.sources if s.active]
 
     print(f"\nValidando {len(active_sources)} fonte(s) ativa(s)...\n")
 
@@ -68,6 +68,6 @@ def validate_all(config: AppConfig) -> bool:
 
 
 if __name__ == "__main__":
-    config = AppConfig()
+    config = load_config()
     passed = validate_all(config)
     sys.exit(0 if passed else 1)
