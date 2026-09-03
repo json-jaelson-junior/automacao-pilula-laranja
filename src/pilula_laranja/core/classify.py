@@ -123,7 +123,7 @@ def classify_all(
         Lista de ExtractedItem aprovados pelo classificador semântico
     """
 
-    model = os.environ.get("GEMINI_CLASSIFIER_MODEL", "gemini-2.5-flash")
+    model = os.environ.get("GEMINI_CLASSIFIER_MODEL", "gemini-3.5-flash-lite")
     prompt_template = _load_prompt_template()
     sleep_seconds = 60 / config.gemini.classify_rpm
     max_items = config.gemini.classify_rpd // 5

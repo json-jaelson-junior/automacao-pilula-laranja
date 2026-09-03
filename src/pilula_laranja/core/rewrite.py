@@ -174,7 +174,7 @@ def rewrite_all(
         Lista de RewriteResult com success=True
     """
 
-    model = os.environ.get("GEMINI_REWRITER_MODEL", "gemini-3.5-flash")
+    model = os.environ.get("GEMINI_REWRITER_MODEL", "gemini-3.8-flash")
     prompt_template = _load_prompt_template()
     sleep_seconds = 60 / config.gemini.rewrite_rpm
     max_items = config.gemini.rewrite_rpd // 5
