@@ -55,7 +55,7 @@ def validate_all(config: load_config) -> bool:
     Returns:
         True se todas as fontes passaram, False se qualquer uma falhou
     """
-    
+
     active_sources = [s for s in config.sources if s.active]
 
     print(f"\nValidando {len(active_sources)} fonte(s) ativa(s)...\n")
