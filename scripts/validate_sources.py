@@ -6,6 +6,13 @@ import requests
 
 from pilula_laranja.config import load_config
 
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
+}
+
 
 def validate_source(name: str, feed_url: str, timeout: int = 10) -> tuple[bool, str]:
     """Valida se uma fonte RSS está acessível e parseable
@@ -19,8 +26,9 @@ def validate_source(name: str, feed_url: str, timeout: int = 10) -> tuple[bool, 
     Returns:
         Tupla (sucesso: bool, mensagem: str) descrevendo o resultado
     """
+
     try:
-        response = requests.get(feed_url, timeout=timeout)
+        response = requests.get(feed_url, timeout=timeout, headers=HEADERS)
         response.raise_for_status()
     except requests.exceptions.Timeout:
         return False, f"{name}: timeout após {timeout}s"
@@ -47,6 +55,7 @@ def validate_all(config: load_config) -> bool:
     Returns:
         True se todas as fontes passaram, False se qualquer uma falhou
     """
+    
     active_sources = [s for s in config.sources if s.active]
 
     print(f"\nValidando {len(active_sources)} fonte(s) ativa(s)...\n")
