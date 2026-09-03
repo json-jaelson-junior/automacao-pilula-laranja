@@ -26,7 +26,7 @@ class GeminiConfig(BaseModel):
 
     daily_token_limit: int = 1_000_000  # Free tier Flash: 1M tokens/dia
     max_retries: int = 3
-    timeout_seconds: int = 30
+    timeout_seconds: int = 90
     classify_rpm: int = 15
     classify_rpd: int = 500
     rewrite_rpm: int = 5
