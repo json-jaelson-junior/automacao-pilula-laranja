@@ -8,6 +8,7 @@ from pilula_laranja.clients.gemini import GeminiClient, GeminiQuotaError
 from pilula_laranja.clients.wordpress import WordPressClient
 from pilula_laranja.config import load_config
 from pilula_laranja.core.classify import classify_all
+from pilula_laranja.core.cleanup import cleanup_api_usage, cleanup_processed_items
 from pilula_laranja.core.collect import collect_all
 from pilula_laranja.core.extract import extract_all
 from pilula_laranja.core.filter import filter_all
@@ -271,6 +272,42 @@ def publish(
         falhas=len(publish_results) - sucessos,
         dry_run=dry_run,
     )
+
+
+@app.command()
+def cleanup(
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Apenas conta os registros elegíveis, sem apagar nada",
+    ),
+) -> None:
+    """Remove registros antigos de processed_items e api_usage"""
+
+    try:
+        client = TursoClient()
+    except TursoError as exc:
+        logger.error("turso_indisponivel", erro=str(exc))
+        raise typer.Exit(code=1) from None
+
+    houve_falha = False
+
+    try:
+        removidos_processed = cleanup_processed_items(client, dry_run=dry_run)
+        logger.info("cleanup_processed_items_ok", removidos=removidos_processed)
+    except TursoError as exc:
+        logger.error("cleanup_processed_items_falhou", erro=str(exc))
+        houve_falha = True
+
+    try:
+        removidos_api_usage = cleanup_api_usage(client, dry_run=dry_run)
+        logger.info("cleanup_api_usage_ok", removidos=removidos_api_usage)
+    except TursoError as exc:
+        logger.error("cleanup_api_usage_falhou", erro=str(exc))
+        houve_falha = True
+
+    if houve_falha:
+        raise typer.Exit(code=1)
 
 
 def main() -> None:

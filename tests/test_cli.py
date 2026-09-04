@@ -178,3 +178,87 @@ def test_publish_quota_error_reescrita():
         result = runner.invoke(app, ["publish"])
 
     assert result.exit_code == 1
+
+
+def test_cleanup_pipeline_completo():
+    # Happy path: as duas tabelas retornam contagem > 0, dry_run desligado
+    with (
+        patch("pilula_laranja.cli.TursoClient"),
+        patch(
+            "pilula_laranja.cli.cleanup_processed_items", return_value=3
+        ) as mock_processed,
+        patch("pilula_laranja.cli.cleanup_api_usage", return_value=7) as mock_api_usage,
+    ):
+        result = runner.invoke(app, ["cleanup"])
+
+    assert result.exit_code == 0
+    mock_processed.assert_called_once()
+    mock_api_usage.assert_called_once()
+
+
+def test_cleanup_dry_run_nao_apaga():
+    # Edge case: --dry-run é repassado para as duas funções
+    with (
+        patch("pilula_laranja.cli.TursoClient"),
+        patch(
+            "pilula_laranja.cli.cleanup_processed_items", return_value=5
+        ) as mock_processed,
+        patch("pilula_laranja.cli.cleanup_api_usage", return_value=2) as mock_api_usage,
+    ):
+        result = runner.invoke(app, ["cleanup", "--dry-run"])
+
+    assert result.exit_code == 0
+    # kwargs dry_run=True chegou em ambas as chamadas
+    assert mock_processed.call_args.kwargs["dry_run"] is True
+    assert mock_api_usage.call_args.kwargs["dry_run"] is True
+
+
+def test_cleanup_falha_turso_indisponivel():
+    from pilula_laranja.db.connection import TursoError
+
+    with patch(
+        "pilula_laranja.cli.TursoClient",
+        side_effect=TursoError("credenciais ausentes"),
+    ):
+        result = runner.invoke(app, ["cleanup"])
+
+    assert result.exit_code == 1
+
+
+def test_cleanup_falha_isolada_processed_items():
+    # Erro esperado: processed_items falha, mas api_usage ainda deve rodar
+    from pilula_laranja.db.connection import TursoError
+
+    with (
+        patch("pilula_laranja.cli.TursoClient"),
+        patch(
+            "pilula_laranja.cli.cleanup_processed_items",
+            side_effect=TursoError("timeout"),
+        ),
+        patch("pilula_laranja.cli.cleanup_api_usage", return_value=4) as mock_api_usage,
+    ):
+        result = runner.invoke(app, ["cleanup"])
+
+    # Exit code 1 porque houve falha, MAS api_usage foi chamado mesmo assim
+    assert result.exit_code == 1
+    mock_api_usage.assert_called_once()
+
+
+def test_cleanup_falha_isolada_api_usage():
+    # Erro esperado: api_usage falha, mas processed_items já rodou antes
+    from pilula_laranja.db.connection import TursoError
+
+    with (
+        patch("pilula_laranja.cli.TursoClient"),
+        patch(
+            "pilula_laranja.cli.cleanup_processed_items", return_value=6
+        ) as mock_processed,
+        patch(
+            "pilula_laranja.cli.cleanup_api_usage",
+            side_effect=TursoError("timeout"),
+        ),
+    ):
+        result = runner.invoke(app, ["cleanup"])
+
+    assert result.exit_code == 1
+    mock_processed.assert_called_once()
