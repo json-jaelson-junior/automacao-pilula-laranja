@@ -2,6 +2,7 @@
 import os
 import time
 from dataclasses import dataclass
+from itertools import zip_longest
 from pathlib import Path
 
 import structlog
@@ -92,6 +93,31 @@ def _parse_response(response: str) -> tuple[str, str]:
     return excerpt, body
 
 
+def _interleave_by_source(items: list[ExtractedItem]) -> list[ExtractedItem]:
+    """Intercala itens por fonte, alternando 1 a 1 entre as fontes disponíveis.
+
+    Agrupa por source_name preservando a ordem de chegada dentro de cada
+    grupo, depois usa zip_longest para distribuir round-robin: 1 item da
+    fonte A, 1 da B, 1 da C, 1 da D, volta pra A, e assim por diante — até
+    esgotar todas. Evita que uma única fonte domine o corte de max_items.
+
+    Args:
+        items: lista de ExtractedItem já aprovados pelo classify_all
+
+    Returns:
+        Mesma lista, reordenada para intercalar fontes
+    """
+    groups: dict[str, list[ExtractedItem]] = {}
+    for item in items:
+        groups.setdefault(item.source_name, []).append(item)
+
+    interleaved = []
+    for row in zip_longest(*groups.values(), fillvalue=None):
+        interleaved.extend(item for item in row if item is not None)
+
+    return interleaved
+
+
 def rewrite_item(
     item: ExtractedItem,
     client: GeminiClient,
@@ -177,9 +203,9 @@ def rewrite_all(
     model = os.environ.get("GEMINI_REWRITER_MODEL", "gemini-3.8-flash")
     prompt_template = _load_prompt_template()
     sleep_seconds = 60 / config.gemini.rewrite_rpm
-    max_items = config.gemini.rewrite_rpd // 5
+    max_items = config.gemini.rewrite_rpd // 2
 
-    items_to_process = items[:max_items]
+    items_to_process = _interleave_by_source(items)[:max_items]
 
     succeeded = []
     failed = 0
