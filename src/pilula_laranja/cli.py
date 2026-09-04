@@ -216,36 +216,42 @@ def publish(
         logger.info("filtragem_sem_aprovados", total=len(deduped_items))
         raise typer.Exit(code=0)
 
-    try:
-        gemini = GeminiClient(db=client, config=config)  # type:ignore[arg-type]
-    except ValueError as exc:
-        logger.error("gemini_api_key_ausente", erro=str(exc))
-        raise typer.Exit(code=1) from None
+    if dry_run:
+        classified_items = filtered_items
+        logger.info("dry_run_classify_ignorado", itens=len(classified_items))
+        rewrite_results = []
+        logger.info("dry_run_rewrite_ignorado")
+    else:
+        try:
+            gemini = GeminiClient(db=client, config=config)  # type: ignore[arg-type]
+        except ValueError as exc:
+            logger.error("gemini_api_key_ausente", erro=str(exc))
+            raise typer.Exit(code=1) from None
 
-    try:
-        classified_items = classify_all(filtered_items, gemini, config)
-    except GeminiQuotaError as exc:
-        logger.error("gemini_quota_esgotada", erro=str(exc))
-        raise typer.Exit(code=1) from None
+        try:
+            classified_items = classify_all(filtered_items, gemini, config)
+        except GeminiQuotaError as exc:
+            logger.error("gemini_quota_esgotada", erro=str(exc))
+            raise typer.Exit(code=1) from None
 
-    if not classified_items:
-        logger.info("classificacao_sem_aprovados", total=len(filtered_items))
-        raise typer.Exit(code=0)
+        if not classified_items:
+            logger.info("classificacao_sem_aprovados", total=len(filtered_items))
+            raise typer.Exit(code=0)
 
-    try:
-        rewrite_results = rewrite_all(classified_items, gemini, config)
-    except GeminiQuotaError as exc:
-        logger.error("gemini_quota_esgotada_reescrita", erro=str(exc))
-        raise typer.Exit(code=1) from None
+        try:
+            rewrite_results = rewrite_all(classified_items, gemini, config)
+        except GeminiQuotaError as exc:
+            logger.error("gemini_quota_esgotada_reescrita", erro=str(exc))
+            raise typer.Exit(code=1) from None
 
-    if not rewrite_results:
-        logger.info("reescrita_sem_resultados", total=len(classified_items))
-        raise typer.Exit(code=0)
+        if not rewrite_results:
+            logger.info("reescrita_sem_resultados", total=len(classified_items))
+            raise typer.Exit(code=0)
 
     if dry_run:
         logger.info(
             "dry_run_publish_ignorado",
-            itens_que_seriam_publicados=len(rewrite_results),
+            itens_que_seriam_publicados=len(classified_items),
             aviso="nenhum rascunho foi criado no WordPress",
         )
         raise typer.Exit(code=0)
