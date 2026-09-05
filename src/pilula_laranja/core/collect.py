@@ -1,16 +1,16 @@
 # Importações
 from __future__ import annotations
 
-import logging
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 
 import feedparser
+import structlog
 from pydantic import BaseModel
 
 from pilula_laranja.config import AppConfig
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 class RawItem(BaseModel):
@@ -38,8 +38,8 @@ def _parse_entry(entry: feedparser.FeedParserDict, source_name: str) -> RawItem 
     title = entry.get("title", "").strip()
     url = entry.get("link", "").strip()
     if not title or not url:
-        logging.warning(
-            "Entrada ignorada: título ou URL ausente | source=%s", source_name
+        logger.warning(
+            "entrada_ignorada", motivo="titulo_ou_url_ausente", source=source_name
         )
         return None
 
@@ -66,14 +66,14 @@ def fetch_feed(source_name: str, feed_url: str) -> list[RawItem]:
         Lista de RawItem extraídos do feed
     """
 
-    logger.info("Buscando feed | source=%s url=%s", source_name, feed_url)
+    logger.info("buscando_feed", source=source_name, url=feed_url)
 
     parsed = feedparser.parse(feed_url)
     if parsed.bozo:
         logger.warning(
-            "Feed com XML mal formad | source=%s erro=%s",
-            source_name,
-            parsed.bozo_exception,
+            "feed_xml_mal_formado",
+            source=source_name,
+            erro=str(parsed.bozo_exception),
         )
 
     items = []
@@ -82,7 +82,7 @@ def fetch_feed(source_name: str, feed_url: str) -> list[RawItem]:
         if item is not None:
             items.append(item)
 
-    logger.info("Feed coletado | source=%s total=%d", source_name, len(items))
+    logger.info("feed_coletado", source=source_name, total=len(items))
     return items
 
 
@@ -100,18 +100,14 @@ def collect_all(config: AppConfig) -> list[RawItem]:
 
     for source in config.sources:
         if not source.active:
-            logger.info("Fonte ignorada (inativa) | source=%s", source.name)
+            logger.info("fonte_ignorada", motivo="inativa", source=source.name)
             continue
 
         try:
             items = fetch_feed(source.name, str(source.feed_url))
             all_items.extend(items)
         except Exception as exc:
-            logger.error(
-                "Falha ao coletar feed | source=%s erro=%s",
-                source.name,
-                exc,
-            )
+            logger.error("falha_ao_coletar_feed", source=source.name, erro=str(exc))
 
-    logger.info("Coleta concluída | total=%d itens", len(all_items))
+    logger.info("coleta_concluida", total_itens=len(all_items))
     return all_items

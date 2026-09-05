@@ -1,17 +1,17 @@
 # Importações
 from __future__ import annotations
 
-import logging
 from datetime import UTC, datetime
 
 import requests
+import structlog
 import trafilatura
 from pydantic import BaseModel
 from readability import Document
 
 from pilula_laranja.core.collect import RawItem
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 _USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
@@ -49,7 +49,7 @@ def _fetch_html(url: str) -> str | None:
         response.raise_for_status()
         return response.text
     except requests.RequestException as exc:
-        logger.warning("Falha ao buscar URL | url=%s erro=%s", url, exc)
+        logger.warning("falha_ao_buscar_url", url=url, erro=str(exc))
         return None
 
 
@@ -79,7 +79,7 @@ def _extract_with_readability(html: str) -> str | None:
         if not content or len(content) < _MIN_CONTENT_LENGTH:
             return None
     except Exception as exc:
-        logger.warning("Falha no readability | erro=%s", exc)
+        logger.warning("falha_no_readability", erro=str(exc))
         return None
 
     return content
@@ -98,7 +98,7 @@ def extract_item(item: RawItem) -> ExtractedItem | None:
         ExtractedItem com conteúdo completo ou None
     """
 
-    logger.info("Extraindo artigo | source=%s url=%s", item.source_name, item.url)
+    logger.info("extraindo_artigo", source=item.source_name, url=item.url)
 
     html = _fetch_html(item.url)
     if html is None:
@@ -107,13 +107,11 @@ def extract_item(item: RawItem) -> ExtractedItem | None:
     content = _extract_with_trafilatura(html, item.url)
 
     if content is None:
-        logger.info(
-            "Trafilatura sem resultado, tentando readability | url=%s", item.url
-        )
+        logger.info("trafilatura_sem_resultado", url=item.url, fallback="readability")
         content = _extract_with_readability(html)
 
     if content is None:
-        logger.warning("Extração falhou em ambos os métodos | url=%s", item.url)
+        logger.warning("extracao_falhou_ambos_metodos", url=item.url)
         return None
 
     return ExtractedItem(
@@ -143,13 +141,13 @@ def extract_all(items: list[RawItem]) -> list[ExtractedItem]:
         if result is not None:
             extracted.append(result)
         else:
-            logger.warning("Item descartado por falha na extração | url=%s", item.url)
+            logger.warning("item_descartado_falha_extracao", url=item.url)
 
     logger.info(
-        "Extração concluída | total=%d extraídos=%d descartados=%d",
-        len(items),
-        len(extracted),
-        len(items) - len(extracted),
+        "extracao_concluida",
+        total=len(items),
+        extraidos=len(extracted),
+        descartados=len(items) - len(extracted),
     )
 
     return extracted
