@@ -82,6 +82,8 @@ def _extract_with_readability(html: str) -> str | None:
         logger.warning("Falha no readability | erro=%s", exc)
         return None
 
+    return content
+
 
 def extract_item(item: RawItem) -> ExtractedItem | None:
     """Extrai conteúdo completo de um RawItem
