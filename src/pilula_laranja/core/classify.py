@@ -54,7 +54,7 @@ def _build_prompt(template: str, item: ExtractedItem) -> str:
         Prompt pronto para enviar ao Gemini
     """
 
-    return template.format(title=item.title, content=item.content[:4000])
+    return template.format(title=item.title, content=item.content[:5000])
 
 
 def _parse_response(response: str) -> bool:
