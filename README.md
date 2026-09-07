@@ -25,9 +25,9 @@ Revisão humana obrigatória antes de qualquer publicação.
 - [x] Fase 0 — Setup
 - [x] Fase 1 — Coleta & Persistência
 - [x] Fase 2 — Filtragem Inteligente
-- [ ] Fase 3 — Reescrita, Sanitização & Publicação ← Marco MVP
-- [ ] Fase 4 — CI/CD & Deploy
-- [ ] Fase 5 — Observabilidade
+- [x] Fase 3 — Reescrita, Sanitização & Publicação ← Marco MVP
+- [x] Fase 4 — CI/CD & Deploy
+- [x] Fase 5 — Observabilidade
 - [ ] Fase 6 — Polimento & Release v0.1.0
 
 ## Configuração local
